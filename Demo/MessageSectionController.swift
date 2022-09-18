@@ -74,7 +74,7 @@ extension MessageSectionController {
 extension MessageSectionController: ListSupplementaryViewSource {
     
     func supportedElementKinds() -> [String] {
-        [UICollectionView.elementKindSectionHeader,BackgroundReusableView.elementKindBackground]
+        []
     }
     
     func viewForSupplementaryElement(ofKind elementKind: String, at index: Int) -> UICollectionReusableView {
