@@ -28,7 +28,6 @@ class DecorationController: UIViewController,UICollectionViewDelegate,UICollecti
         instance.backgroundColor = .white
         instance.register(CollectionCell.self, forCellWithReuseIdentifier: "cell")
         instance.register(CollectionReusableHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
-        instance.register(CollectionReusableFooterView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: "footer")
         instance.register(BackgroundReusableView.self, forSupplementaryViewOfKind: BackgroundReusableView.elementKindBackground, withReuseIdentifier: BackgroundReusableView.elementKindBackground)
         instance.delegate = self
         instance.dataSource = self
@@ -51,16 +50,13 @@ class DecorationController: UIViewController,UICollectionViewDelegate,UICollecti
         
         navigationController?.setNavigationBarHidden(true, animated: false)
 
-        var list = [Message]()
-        for i in 1...3 {
-            var comment = Message()
+        for i in 1...4 {
+            let comment = Message()
             comment.id = i
             comment.like = 10 + i
             list.append(comment)
         }
-        
-        self.list = list
-        
+                
         self.collectionView.reloadData()
                 
     }
@@ -72,7 +68,7 @@ class DecorationController: UIViewController,UICollectionViewDelegate,UICollecti
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
+        return 2
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -91,38 +87,29 @@ class DecorationController: UIViewController,UICollectionViewDelegate,UICollecti
         }
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! CollectionCell
-        cell.label.text = "\(String(describing: list[indexPath.row].like))"
+        cell.label.text = "\(list[indexPath.row].like) -- \(indexPath.row)"
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        var old = list
         
-        for i in 1...3 {
-            var comment = Message()
-            comment.id = i
-            comment.like = 20 + i
-            list.append(comment)
+        if indexPath.row % 2 == 0 {
+            for i in 0...15 {
+                let comment = Message()
+                comment.id = i
+                comment.like = 20 + i
+                list.insert(comment, at: indexPath.row + 1)
+            }
+        } else {
+            list.removeAll { m in
+                m.like > 22
+            }
         }
         
-        let changes = diff(old: old, new: self.list)
-        self.collectionView.reload(changes: changes,section: 1,updateData: {
-            self.list = self.list
-        })
+        
+        collectionView.reloadData()
     }
     
-    func deleteItems() {
-        collectionView.performBatchUpdates {
-            var indexs = [IndexPath]()
-            for i in 10...20 {
-                let index = IndexPath(row: i, section: 1)
-                indexs.append(index)
-                list.remove(at: i)
-            }
-            
-            collectionView.deleteItems(at: indexs)
-        }
-    }
 
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
 
@@ -130,10 +117,6 @@ class DecorationController: UIViewController,UICollectionViewDelegate,UICollecti
             let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as! CollectionReusableHeaderView
             view.backgroundColor = .blue
             view.label.text = "Header";
-            return view;
-        } else if kind == UICollectionView.elementKindSectionFooter {
-            let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "footer", for: indexPath) as! CollectionReusableFooterView
-            view.label.text = "Footer";
             return view;
         } else if kind == BackgroundReusableView.elementKindBackground {
             let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: BackgroundReusableView.elementKindBackground, for: indexPath)
@@ -146,7 +129,7 @@ class DecorationController: UIViewController,UICollectionViewDelegate,UICollecti
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        CGSize(width: UIScreen.main.bounds.width, height: 40)
+        CGSize(width: UIScreen.main.bounds.width - 40, height: 40)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {

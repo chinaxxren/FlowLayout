@@ -14,7 +14,7 @@ public class SessionDto: NSObject,ListDiffable {
     var list = [Message]()
     
     override init() {
-        for i in 1...2 {
+        for i in 1...10 {
             let message = Message()
             message.id = i
             message.like = 20 + i
